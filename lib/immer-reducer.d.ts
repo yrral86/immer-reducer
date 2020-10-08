@@ -26,7 +26,7 @@ declare type ReturnTypeUnion<T extends MethodObject> = ObjectValueTypes<FlattenT
 /**
  * Get union of actions types from a ImmerReducer class
  */
-export declare type Actions<T extends ImmerReducerClass<T>> = ReturnTypeUnion<ActionCreators<T>>;
+export declare type Actions<T extends ImmerReducerClass<any>> = ReturnTypeUnion<ActionCreators<T>>;
 /** type constraint for the ImmerReducer class  */
 export interface ImmerReducerClass<T> {
     customName?: string;

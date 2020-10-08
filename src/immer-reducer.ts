@@ -39,7 +39,7 @@ type ReturnTypeUnion<T extends MethodObject> = ObjectValueTypes<
 /**
  * Get union of actions types from a ImmerReducer class
  */
-export type Actions<T extends ImmerReducerClass<T>> = ReturnTypeUnion<
+export type Actions<T extends ImmerReducerClass<any>> = ReturnTypeUnion<
     ActionCreators<T>
 >;
 
