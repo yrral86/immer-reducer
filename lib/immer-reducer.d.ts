@@ -26,12 +26,12 @@ declare type ReturnTypeUnion<T extends MethodObject> = ObjectValueTypes<FlattenT
 /**
  * Get union of actions types from a ImmerReducer class
  */
-export declare type Actions<T extends ImmerReducerClass> = ReturnTypeUnion<ActionCreators<T>>;
+export declare type Actions<T extends ImmerReducerClass<T>> = ReturnTypeUnion<ActionCreators<T>>;
 /** type constraint for the ImmerReducer class  */
-export interface ImmerReducerClass {
+export interface ImmerReducerClass<T> {
     customName?: string;
     patchPathPrefix?: string[];
-    new (...args: any[]): ImmerReducer<any>;
+    new (...args: any[]): ImmerReducer<T>;
 }
 /** get state type from a ImmerReducer subclass */
 export declare type ImmerReducerState<T> = T extends {
@@ -40,7 +40,7 @@ export declare type ImmerReducerState<T> = T extends {
     };
 } ? V : never;
 /** generate reducer function type from the ImmerReducer class */
-export interface ImmerReducerFunction<T extends ImmerReducerClass> {
+export interface ImmerReducerFunction<T extends ImmerReducerClass<T>> {
     (state: ImmerReducerState<T> | undefined, action: ReturnTypeUnion<ActionCreators<T>>): ImmerReducerState<T>;
 }
 /** ActionCreator function interface with actual action type name */
@@ -52,7 +52,7 @@ interface ImmerActionCreator<ActionTypeType, Payload extends any[]> {
     };
 }
 /** generate ActionCreators types from the ImmerReducer class */
-export declare type ActionCreators<ClassActions extends ImmerReducerClass> = {
+export declare type ActionCreators<ClassActions extends ImmerReducerClass<any>> = {
     [K in keyof Methods<InstanceType<ClassActions>>]: ImmerActionCreator<K, ArgumentsType<InstanceType<ClassActions>[K]>>;
 };
 /**
@@ -64,7 +64,7 @@ export declare type ActionCreators<ClassActions extends ImmerReducerClass> = {
 export declare function isAction<A extends ImmerActionCreator<any, any>>(action: {
     type: any;
 }, immerActionCreator: A): action is ReturnType<A>;
-export declare function isActionFrom<T extends ImmerReducerClass>(action: {
+export declare function isActionFrom<T extends ImmerReducerClass<any>>(action: {
     type: any;
 }, immerReducerClass: T): action is Actions<T>;
 interface Reducer<State> {
@@ -84,8 +84,8 @@ export declare class ImmerReducer<T> {
     draftState: Draft<T>;
     constructor(draftState: Draft<T>, state: T);
 }
-export declare function createActionCreators<T extends ImmerReducerClass>(immerReducerClass: T): ActionCreators<T>;
-export declare function createReducerFunction<T extends ImmerReducerClass>(immerReducerClass: T, initialState?: ImmerReducerState<T>): ImmerReducerFunction<T>;
+export declare function createActionCreators<T extends ImmerReducerClass<any>>(immerReducerClass: T): ActionCreators<T>;
+export declare function createReducerFunction<T extends ImmerReducerClass<any>>(immerReducerClass: T, initialState?: ImmerReducerState<T>): ImmerReducerFunction<T>;
 export declare function setPrefix(prefix: string): void;
 export declare function beginAccumulatingPatches(): void;
 export declare function popAccumulatedPatches(): Patch[];
