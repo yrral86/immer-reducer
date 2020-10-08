@@ -39,15 +39,15 @@ type ReturnTypeUnion<T extends MethodObject> = ObjectValueTypes<
 /**
  * Get union of actions types from a ImmerReducer class
  */
-export type Actions<T extends ImmerReducerClass> = ReturnTypeUnion<
+export type Actions<T extends ImmerReducerClass<T>> = ReturnTypeUnion<
     ActionCreators<T>
 >;
 
 /** type constraint for the ImmerReducer class  */
-export interface ImmerReducerClass {
+export interface ImmerReducerClass<T> {
     customName?: string;
     patchPathPrefix?: string[];
-    new (...args: any[]): ImmerReducer<any>;
+    new (...args: any[]): ImmerReducer<T>;
 }
 
 /** get state type from a ImmerReducer subclass */
@@ -60,7 +60,7 @@ export type ImmerReducerState<T> = T extends {
     : never;
 
 /** generate reducer function type from the ImmerReducer class */
-export interface ImmerReducerFunction<T extends ImmerReducerClass> {
+export interface ImmerReducerFunction<T extends ImmerReducerClass<T>> {
     (
         state: ImmerReducerState<T> | undefined,
         action: ReturnTypeUnion<ActionCreators<T>>,
@@ -78,7 +78,7 @@ interface ImmerActionCreator<ActionTypeType, Payload extends any[]> {
 }
 
 /** generate ActionCreators types from the ImmerReducer class */
-export type ActionCreators<ClassActions extends ImmerReducerClass> = {
+export type ActionCreators<ClassActions extends ImmerReducerClass<any>> = {
     [K in keyof Methods<InstanceType<ClassActions>>]: ImmerActionCreator<
         K,
         ArgumentsType<InstanceType<ClassActions>[K]>
@@ -113,7 +113,7 @@ export function isAction<A extends ImmerActionCreator<any, any>>(
     return action.type === immerActionCreator.type;
 }
 
-function isActionFromClass<T extends ImmerReducerClass>(
+function isActionFromClass<T extends ImmerReducerClass<any>>(
     action: {type: any},
     immerReducerClass: T,
 ): action is Actions<T> {
@@ -138,7 +138,7 @@ function isActionFromClass<T extends ImmerReducerClass>(
     return true;
 }
 
-export function isActionFrom<T extends ImmerReducerClass>(
+export function isActionFrom<T extends ImmerReducerClass<any>>(
     action: {type: any},
     immerReducerClass: T,
 ): action is Actions<T> {
@@ -283,7 +283,7 @@ function getAllPropertyNames(obj: object) {
         );
 }
 
-export function createActionCreators<T extends ImmerReducerClass>(
+export function createActionCreators<T extends ImmerReducerClass<any>>(
     immerReducerClass: T,
 ): ActionCreators<T> {
     setCustomNameForDuplicates(immerReducerClass);
@@ -326,7 +326,7 @@ function getReducerName(klass: {name: string; customName?: string}) {
     return name;
 }
 
-export function createReducerFunction<T extends ImmerReducerClass>(
+export function createReducerFunction<T extends ImmerReducerClass<any>>(
     immerReducerClass: T,
     initialState?: ImmerReducerState<T>,
 ): ImmerReducerFunction<T> {
