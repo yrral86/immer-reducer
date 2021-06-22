@@ -155,7 +155,7 @@ interface Reducer<State> {
  * @param reducers two or more reducer
  */
 export function composeReducers<State>(
-    ...reducers: (Reducer<State | undefined>)[]
+    ...reducers: Reducer<State | undefined>[]
 ): Reducer<State> {
     return (state: any, action: any) => {
         return (
@@ -360,12 +360,13 @@ export function createReducerFunction<T extends ImmerReducerClass>(
                 return reducers.draftState;
             }
 
-            // Workaround typing changes in Immer 3.x. This does not actually
+            return draftState;
+
+            // Workaround typing changes in Immer 9.x. This does not actually
             // affect the exposed types by immer-reducer itself.
 
             // Also using immer internally with anys like this allow us to
-            // support multiple versions of immer from 1.4 to 3.x
-            return draftState as any;
+            // support multiple versions of immer.
         };
 
         if (accumulatePatches) {
@@ -407,4 +408,29 @@ export function stopAccumulatingPatches(): void {
  */
 export function _clearKnownClasses() {
     KNOWN_REDUCER_CLASSES = [];
+}
+
+/**
+ * https://webpack.js.org/api/hot-module-replacement/#module-api
+ */
+interface WebpackModule {
+    hot?: {
+        status(): string;
+        addStatusHandler?: (handler: (status: string) => void) => void;
+    };
+}
+
+/**
+ * Webpack Module global if using Wepback
+ */
+declare const module: WebpackModule | undefined;
+
+if (typeof module !== "undefined") {
+    // Clear classes on Webpack Hot Module replacement as it will mess up the
+    // duplicate checks appear
+    module.hot?.addStatusHandler?.(status => {
+        if (status === "prepare") {
+            _clearKnownClasses();
+        }
+    });
 }
